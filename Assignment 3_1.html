@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<body style="background-color: #7cc0d8;"></body>
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://kit.fontawesome.com/e6d630b22a.js" crossorigin="anonymous"></script>
+  <head>
+    <title>Assignment 3</title>
+  </head>
+  <style>
+
+    h1 {
+            width: 1500px;
+            text-align:left;
+            font-family: "Comic Sans MS", "Comic Sans", cursive;
+            font-size:50px;
+            line-height: 60px;
+            color: blue;
+        }
+    
+    
+    .blink {
+            animation: blinker 1.5s linear infinite;
+            text-align:center;
+            width: 1500px;
+            color: blue;
+            font-family: "Comic Sans MS", "Comic Sans", cursive, underline;
+            font-size: 100px;
+        }
+        @keyframes blinker {
+            80% {
+                opacity: 0;
+            }
+        }
+
+    p {
+        width: 1000px;
+        text-align: left;
+        text-align-last: left;
+        font-family: "Comic Sans MS", "Comic Sans", cursive;
+        color:blue;
+        font: size 10px;
+    }
+
+  </style>
+  </head>
+  <body>
+    <img src="https://www.hdb.gov.sg/-/media/HDBContent/Images/CCG/current-corporate-signature-.ashx" alt = "hdb" width = "800" height = "100">
+    <img src="https://www.asiaone.com/sites/default/files/styles/article_main_image/public/business/2016/02/12/20160212_st_pinnacleduxton.jpg?itok=QMRYT1FK" alt = "https://plannerbee.co/wp-content/uploads/2021/12/ohm01.jpeg" width = "600" height = "100">
+    <br>
+    <h1>Welcome to comparing HDB resale prices</h1>
+    <p>Most Singaporeans dream of having their own home one day. One of the most common ways to achieve this is to buy a unit in HDB resale flats. 
+      <br>These units can be broadly categorized into:  
+      <br><br><i class="fa-solid fa-house"></i> 1 Room
+      <br><i class="fa-solid fa-house"></i><i class="fa-solid fa-house"></i> 2 Room
+      <br><i class="fa-solid fa-house"></i><i class="fa-solid fa-house"></i><i class="fa-solid fa-house"></i> 3 Room
+      <br><i class="fa-solid fa-house"></i><i class="fa-solid fa-house"></i><i class="fa-solid fa-house"></i><i class="fa-solid fa-house"></i> 4 Room 
+      <br><i class="fa-solid fa-house"></i><i class="fa-solid fa-house"></i><i class="fa-solid fa-house"></i><i class="fa-solid fa-house"></i><i class="fa-solid fa-house"></i> 5 Room
+      <br><i class="fa-solid fa-dollar-sign"></i><i class="fa-solid fa-house"></i><i class="fa-solid fa-dollar-sign"></i></i> Executive Condo
+      <br><br><img src="https://www20.hdb.gov.sg/fi10/fi10221p.nsf/client/hdb/ar2014-2015/wp-content/uploads/2015/10/hdb-web-BANNER_new1_1-1500x650.jpg" alt = "https://www20.hdb.gov.sg/fi10/fi10221p.nsf/hdb/2020/images/home1.jpg" width = "800" height = "100">
+      <br><br> However, not many Singaporeans know how to access the information needed to make comparisons between HDB resale flats in different neighbourhoods, let alone the price of the unit types. 
+      <br><br>Having good knowledge of these resale prices is important for Singaporeans to make the best decision on the <b><u>type of unit</u></b> and <b><u>neighbourhood</u></b> to buy their HDB home with respect to their financial situations.
+      <br><br>This knowledge is especially crucial for young couples who have not yet accumulated much income, and are unable/unlucky enough to not be able to successfully get a BTO unit.
+      <br><br>As such, an interactive bar chart is is created to compare average resale prices across different neighbourhoods in Singapore, including the prices of the respective unit categories mentioned previously. This will allow you to easily see which units or neighbourhoods are cheaper and within your financial means at a glance with just the press of a button. 
+      <br><br>The data for the resale prices are that of March 2023. One way this interactive chart can be improved is for the bars to show the exact values of the resale prices as well.
+    <p class="blink"><u>TRY IT HERE NOW!!</u></p>
+    <hr>
+    <br>
+
+
+<!-- Add 6 buttons -->
+<button onclick="update('avg_total')">Total Average</button>
+<button onclick="update('1_Room')">1 Room</button>
+<button onclick="update('2_Room')">2 Room</button>
+<button onclick="update('3_Room')">3 Room</button>
+<button onclick="update('4_Room')">4 Room</button>
+<button onclick="update('5_Room')">5 Room</button>
+<button onclick="update('executive')">Executive Condo</button>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<script>
+
+    // set the dimensions and margins of the graph
+    var margin = {top: 30, right: 30, bottom: 100, left: 60},
+        width = 1000- margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
+    
+    // append the svg object to the body of the page
+    var svg = d3.select("#my_dataviz")
+      .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
+    
+    // Initialize the X axis
+    var x = d3.scaleBand()
+      .range([ 0, width ])
+      .padding(0.2);
+    var xAxis = svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+
+    
+    // Initialize the Y axis
+    var y = d3.scaleLinear()
+      .range([ height, 0]);
+    var yAxis = svg.append("g")
+      .attr("class", "myYaxis")
+    
+    
+    // A function that create / update the plot for a given variable:
+    function update(selectedVar) {
+    
+      // Parse the Data
+      d3.csv("https://raw.githubusercontent.com/darendi/HASS-assignment3/main/avg_price_all.csv", function(data) {
+    
+        // X axis
+        x.domain(data.map(function(d) { return d.town; }))
+        xAxis.transition().duration(1000).call(d3.axisBottom(x))
+        .selectAll("text")
+            .attr("transform", "translate(-10,0)rotate(-55)")
+            .style("text-anchor", "end");
+    
+        // Add Y axis
+        y.domain([0, d3.max(data, function(d) { return +d[selectedVar] }) ]);
+        yAxis.transition().duration(1000).call(d3.axisLeft(y));
+    
+        // variable u: map data to existing bars
+        var u = svg.selectAll("rect")
+          .data(data)
+    
+        // update bars
+        u
+          .enter()
+          .append("rect")
+          .merge(u)
+          .transition()
+          .duration(1000)
+            .attr("x", function(d) { return x(d.town); })
+            .attr("y", function(d) { return y(d[selectedVar]); })
+            .attr("width", x.bandwidth())
+            .attr("height", function(d) { return height - y(d[selectedVar]); })
+            .attr("fill", "#ff4dff")
+      })
+    
+    }
+    
+    // Initialize plot
+    update('avg_total')
+    
+</script>
+</html>
